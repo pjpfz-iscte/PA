@@ -22,5 +22,19 @@ class Test {
         assertEquals(jsonObject.getJsonText(), "{\n\tOlá: \"Mundo\"\n}")
     }
 
+    @Test
+    fun testeFilterJsonArray(){
+        val json = JsonElement.JsonArray(arrayOf(
+            JsonElement.JsonNumber(1),
+            JsonElement.JsonString("hello"),
+            JsonElement.JsonArray(arrayOf(
+                JsonElement.JsonNumber(99),
+                JsonElement.JsonBoolean(true)
+            ))
+        ))
+
+        val resultado = json.filter { it is JsonElement.JsonNumber }
+        println(resultado)
+    }
 
 }
