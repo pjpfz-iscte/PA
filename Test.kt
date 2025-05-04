@@ -7,16 +7,16 @@ class Test {
 
     @Test
     fun testConstructor(){
-        val jsonElement = JsonElement.JsonString("Mundo");
-        val content: MutableMap<String, JsonElement> = mutableMapOf("Olá" to jsonElement) as MutableMap<String, JsonElement> // Tenho de perguntar isto ao prof
+        val jsonElement = JsonString("Mundo");
+        val content: MutableMap<String, JsonElement> = mutableMapOf("Olá" to jsonElement) // Tenho de perguntar isto ao prof
 
         val jsonObject = JsonObject(content)
     }
 
     @Test
     fun testGetJsonText(){
-        val jsonElement = JsonElement.JsonString("Mundo");
-        val content: MutableMap<String, JsonElement> = mutableMapOf("Olá" to jsonElement) as MutableMap<String, JsonElement> // Tenho de perguntar isto ao prof
+        val jsonElement = JsonString("Mundo");
+        val content: MutableMap<String, JsonElement> = mutableMapOf("Olá" to jsonElement) // Tenho de perguntar isto ao prof
 
         val jsonObject = JsonObject(content)
         assertEquals(jsonObject.getJsonText(), "{\n\tOlá: \"Mundo\"\n}")
@@ -24,16 +24,29 @@ class Test {
 
     @Test
     fun testeFilterJsonArray(){
-        val json = JsonElement.JsonArray(arrayOf(
-            JsonElement.JsonNumber(1),
-            JsonElement.JsonString("hello"),
-            JsonElement.JsonArray(arrayOf(
-                JsonElement.JsonNumber(99),
-                JsonElement.JsonBoolean(true)
-            ))
+        val json = JsonArray(arrayOf(
+            JsonNumber(1),
+            JsonString("hello"),
+            JsonNumber(4)
         ))
 
-        val resultado = json.filter { it is JsonElement.JsonNumber }
+        val resultado = json.filter { it is JsonNumber }
+        println(resultado)
+    }
+
+    @Test
+    fun testeFilterJsonObject(){
+        val obj = JsonObject(
+            mutableMapOf(
+                "name" to JsonString("Alice"),
+                "age" to JsonNumber(30),
+                "location" to JsonString("aqui"),
+                "codigo-postal" to JsonNull,
+                "outro" to JsonBoolean(true)
+            )
+        )
+        
+        val resultado = obj.filter { it is JsonString }
         println(resultado)
     }
 
