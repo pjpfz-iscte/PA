@@ -1,37 +1,47 @@
-
-    // Usei o data class porque só guardamos dados
-data class JsonArray<T : JsonElement>(val content: Array<T>) : JsonElement(){
+// Usei o data class porque só guardamos dados
+data class JsonArray<T : JsonElement>(val content: Array<T>) : JsonElement() {
     override fun toString(): String {
-        return content.joinToString (", " , "[", "]" )
+        return content.joinToString(", ", "[", "]")
     }
 
-    override fun accept(visitor: (JsonElement) -> Unit){
+    override fun accept(visitor: (JsonElement) -> Unit) {
         visitor(this)
-        content.forEach{ it.accept(visitor)}
+        content.forEach { it.accept(visitor) }
     }
 
-    fun filter(predicate: (JsonElement) -> Boolean): JsonArray<JsonElement>{
+    fun filter(predicate: (JsonElement) -> Boolean): JsonArray<JsonElement> {
         val filteredList = mutableListOf<JsonElement>()
-        accept{ e ->
-            if(predicate(e))
+        accept { e ->
+            if (predicate(e))
                 filteredList.add(e)
         }
         return JsonArray(filteredList.toTypedArray())
     }
-}
 
-data class JsonString(val content: String) : JsonElement(){
-    override fun toString(): String { return "\"$content\""
+    fun map(predicate: (JsonElement) -> JsonElement): JsonArray<JsonElement>{
+        val map = mutableListOf<JsonElement>()
+        accept { e ->
+            if(e !is JsonArray<*>){
+                map.add(predicate(e))
+            }
+        }
+        return JsonArray(map.toTypedArray())
     }
 }
 
-data class JsonNumber(val content: Number) : JsonElement(){
+data class JsonString(val content: String) : JsonElement() {
+    override fun toString(): String {
+        return "\"$content\""
+    }
+}
+
+data class JsonNumber(val content: Number) : JsonElement() {
     override fun toString(): String {
         return content.toString()
     }
 }
 
-data class JsonBoolean(val content: Boolean) : JsonElement(){
+data class JsonBoolean(val content: Boolean) : JsonElement() {
     override fun toString(): String {
         return content.toString()
     }
@@ -46,7 +56,7 @@ object JsonNull : JsonElement() {
 }
 
 sealed class JsonElement {
-    open fun accept(visitor: (JsonElement) -> Unit){
+    open fun accept(visitor: (JsonElement) -> Unit) {
         visitor(this)
     }
 }

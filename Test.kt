@@ -45,9 +45,21 @@ class Test {
                 "outro" to JsonBoolean(true)
             )
         )
-        
+
         val resultado = obj.filter { it is JsonString }
         println(resultado)
     }
 
+    @Test
+    fun testeMapJsonArray(){
+        val json = JsonArray(arrayOf(
+            JsonNumber(1),
+            JsonNumber(10),
+            JsonNumber(4)
+        ))
+
+        val resultado = json.map { if (it is JsonNumber) JsonNumber(it.content.toInt() * 2)
+        else it}
+        println(resultado)
+    }
 }
