@@ -15,11 +15,40 @@ class Test {
 
     @Test
     fun testGetJsonText(){
-        val jsonElement = JsonString("Mundo");
-        val content: MutableMap<String, JsonElement> = mutableMapOf("Olá" to jsonElement) // Tenho de perguntar isto ao prof
+        val jsonString = JsonString("String")
+        val jsonArray = JsonArray(arrayOf(jsonString, jsonString))
+        val jsonInt = JsonNumber(2)
+        val jsonFloat = JsonNumber(2.4)
+        val jsonBoolean = JsonBoolean(true)
+        val jsonNull = JsonNull
+        val jsonObject = JsonObject(mutableMapOf("Teste" to jsonString))
+        val content: MutableMap<String, JsonElement> = mutableMapOf<String, JsonElement>(
+            "jsonString" to jsonString,
+            "jsonArray" to jsonArray,
+            "jsonInt" to jsonInt,
+            "jsonFloat" to jsonFloat,
+            "jsonBoolean" to jsonBoolean,
+            "jsonNull" to jsonNull,
+            "jsonObject" to jsonObject
+        )
 
-        val jsonObject = JsonObject(content)
-        assertEquals(jsonObject.getJsonText(), "{\n\tOlá: \"Mundo\"\n}")
+        val jsonTextTest = JsonObject(content)
+        val obtainedText = jsonTextTest.getJsonText()
+        val expectedText = "{\n" +
+                "\t\"jsonString\":\"String\",\n" +
+                "\t\"jsonArray\":[\n" +
+                "\t\t\"String\",\n" +
+                "\t\t\"String\"\n" +
+                "\t],\n" +
+                "\t\"jsonInt\":2,\n" +
+                "\t\"jsonFloat\":2.4,\n" +
+                "\t\"jsonBoolean\":true,\n" +
+                "\t\"jsonNull\":null,\n" +
+                "\t\"jsonObject\":{\n" +
+                "\t\t\"Teste\":\"String\"\n" +
+                "\t}\n" +
+                "}"
+        assertEquals(obtainedText, expectedText)
     }
 
     @Test

@@ -1,12 +1,12 @@
 class JsonObject (val map: MutableMap<String,JsonElement>):  JsonElement(){
-    fun getJsonText(): String{
-        var jsontext = "{\n"
+    fun getJsonText(identLevel: Int = 0): String {
+        var jsonText = "{\n"
         map.forEach{
-            entry -> jsontext+="\t${entry.key}: ${entry.value.toString()}\n"
+            entry -> jsonText += "${"\t".repeat(identLevel + 1)}\"${entry.key}\":${entry.value.getText(identLevel + 1)},\n"
         }
-        jsontext += "}"
-
-        return jsontext
+        jsonText = jsonText.removeSuffix(",\n")
+        jsonText += "\n${"\t".repeat(identLevel)}}"
+        return jsonText
     }
 
     override fun toString(): String {
@@ -18,6 +18,10 @@ class JsonObject (val map: MutableMap<String,JsonElement>):  JsonElement(){
         map.values.forEach{
             value -> value.accept(visitor)
         }
+    }
+
+    override fun getText(identLevel: Int): String {
+        return getJsonText(identLevel)
     }
 
     fun filter(predicate: (JsonElement) -> Boolean): JsonObject{
