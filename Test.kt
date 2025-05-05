@@ -48,6 +48,7 @@ class Test {
                 "\t\t\"Teste\":\"String\"\n" +
                 "\t}\n" +
                 "}"
+        println(obtainedText)
         assertEquals(obtainedText, expectedText)
     }
 
