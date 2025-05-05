@@ -1,5 +1,4 @@
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNull
+import org.junit.Assert.*
 import org.junit.Test
 import java.io.File
 
@@ -33,7 +32,7 @@ class Test {
         )
 
         val jsonTextTest = JsonObject(content)
-        val obtainedText = jsonTextTest.getJsonText()
+        val obtainedText = jsonTextTest.getText()
         val expectedText = "{\n" +
                 "\t\"jsonString\":\"String\",\n" +
                 "\t\"jsonArray\":[\n" +
@@ -48,7 +47,6 @@ class Test {
                 "\t\t\"Teste\":\"String\"\n" +
                 "\t}\n" +
                 "}"
-        println(obtainedText)
         assertEquals(obtainedText, expectedText)
     }
 
@@ -61,7 +59,7 @@ class Test {
         ))
 
         val resultado = json.filter { it is JsonNumber }
-        println(resultado)
+        println(resultado.getText())
     }
 
     @Test
@@ -90,6 +88,32 @@ class Test {
 
         val resultado = json.map { if (it is JsonNumber) JsonNumber(it.content.toInt() * 2)
         else it}
-        println(resultado)
+        print(resultado)
+    }
+
+    @Test
+    fun testIsValidJsonObject(){
+        val jsonObject1 = JsonObject(mutableMapOf("Olá" to JsonString("Mundo")))
+        assertTrue(jsonObject1.isValid())
+        val jsonObject2 = JsonObject(mutableMapOf("Olá" to JsonString("Mundo"), "Olá" to JsonString("Mundo")))
+        assertFalse(jsonObject2.isValid())
+    }
+
+    @Test
+    fun testIsValidJsonArray(){
+        val jsonString = JsonString("String")
+        val jsonNull = JsonNull
+        val jsonObject = JsonObject(mutableMapOf("Teste" to jsonString))
+
+        val jsonArray1 = JsonArray<JsonElement>(arrayOf(jsonString))
+        assertTrue(jsonArray1.isValid())
+        val jsonArray2 = JsonArray<JsonElement>(arrayOf(jsonObject,jsonObject))
+        assertTrue(jsonArray2.isValid())
+        val jsonArray3 = JsonArray<JsonElement>(arrayOf(jsonArray1,jsonArray1,jsonArray1))
+        assertTrue(jsonArray3.isValid())
+        val jsonArray4 = JsonArray<JsonElement>(arrayOf(jsonNull,jsonNull,jsonNull))
+        assertFalse(jsonArray4.isValid())
+        val jsonArray5 = JsonArray<JsonElement>(arrayOf(jsonString,jsonObject,jsonArray1))
+        assertFalse(jsonArray5.isValid())
     }
 }

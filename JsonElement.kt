@@ -1,3 +1,5 @@
+import kotlin.reflect.KClass
+
 // Usei o data class porque só guardamos dados
 data class JsonArray<T : JsonElement>(val content: Array<T>) : JsonElement() {
     override fun getText(identLevel: Int): String {
@@ -10,10 +12,6 @@ data class JsonArray<T : JsonElement>(val content: Array<T>) : JsonElement() {
         return jsonArrayText
     }
 
-    override fun accept(visitor: (JsonElement) -> Unit) {
-        visitor(this)
-        content.forEach { it.accept(visitor) }
-    }
 
     fun filter(predicate: (JsonElement) -> Boolean): JsonArray<JsonElement> {
         val filteredList = mutableListOf<JsonElement>()
@@ -32,6 +30,22 @@ data class JsonArray<T : JsonElement>(val content: Array<T>) : JsonElement() {
             }
         }
         return JsonArray(map.toTypedArray())
+    }
+
+    override fun toString(): String {
+        return getText()
+    }
+
+
+    fun isValid():Boolean{
+        var type : KClass<out JsonElement>? = null
+        var isValid = true
+        accept {
+            if(it is JsonNull || (type!=null && it::class!=type))
+                isValid = false
+            type = it::class
+        }
+        return isValid
     }
 }
 
@@ -62,9 +76,18 @@ object JsonNull : JsonElement() {
 }
 
 sealed class JsonElement {
-    open fun accept(visitor: (JsonElement) -> Unit) {
-        visitor(this)
+    fun accept(visitor: (JsonElement) -> Unit) {
+        when(this){
+            is JsonArray<*> -> this.content.forEach { it.accept(visitor) }
+            is JsonObject -> this.map.values.forEach { it.accept(visitor) }
+            else -> visitor(this)
+        }
     }
 
-    abstract fun getText(identLevel: Int): String
+    abstract fun getText(identLevel: Int=0): String
+
+    override fun toString(): String {
+        return getText()
+    }
 }
+
