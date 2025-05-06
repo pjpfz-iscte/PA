@@ -1,3 +1,4 @@
+import kotlin.io.path.fileVisitor
 import kotlin.reflect.KClass
 
 // Usei o data class porque só guardamos dados
@@ -61,18 +62,6 @@ data class JsonArray<T : JsonElement>(val content: Array<T>) : JsonElement() {
     override fun toString(): String {
         return getText()
     }
-
-
-    fun isValid():Boolean{
-        var type : KClass<out JsonElement>? = null
-        var isValid = true
-        accept {
-            if(it is JsonNull || (type!=null && it::class!=type))
-                isValid = false
-            type = it::class
-        }
-        return isValid
-    }
 }
 
 data class JsonString(val content: String) : JsonElement() {
@@ -102,11 +91,17 @@ object JsonNull : JsonElement() {
 }
 
 sealed class JsonElement {
-    fun accept(visitor: (JsonElement) -> Unit) {
-        when(this){
-            is JsonArray<*> -> this.content.forEach { it.accept(visitor) }
-            is JsonObject -> this.map.values.forEach { it.accept(visitor) }
-            else -> visitor(this)
+    fun accept(visitor: JsonVisitor) {
+        when (this) {
+            is JsonArray<*> -> {
+                visitor.visit(this)
+                this.content.forEach { it.accept(visitor) }
+            }
+            is JsonObject -> {
+                visitor.visit(this)
+                this.map.values.forEach { it.accept(visitor) }
+            }
+            else -> visitor.visit(this)
         }
     }
 
@@ -114,6 +109,12 @@ sealed class JsonElement {
 
     override fun toString(): String {
         return getText()
+    }
+
+    open fun isValid(): Boolean {
+        val jsonValidator = JsonValidator()
+        this.accept(jsonValidator)
+        return jsonValidator.isValidJson()
     }
 }
 

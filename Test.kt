@@ -95,8 +95,10 @@ class Test {
     @Test
     fun testIsValidJsonObject(){
         val jsonObject1 = JsonObject(mutableMapOf("Olá" to JsonString("Mundo")))
+        print(jsonObject1.isValid())
         assertTrue(jsonObject1.isValid())
-        val jsonObject2 = JsonObject(mutableMapOf("Olá" to JsonString("Mundo"), "Olá" to JsonString("Mundo")))
+        val jsonNull = JsonNull
+        val jsonObject2 = JsonObject(mutableMapOf("Olá" to JsonString("Mundo"), "jsonArray" to JsonArray<JsonElement>(arrayOf(jsonNull,jsonNull,jsonNull))))
         assertFalse(jsonObject2.isValid())
     }
 

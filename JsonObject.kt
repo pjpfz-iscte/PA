@@ -56,7 +56,5 @@ class JsonObject (val map: MutableMap<String,JsonElement>):  JsonElement(){
         return JsonObject(mapped)
     }
 
-    fun isValid(): Boolean{
-        return true
-    }
+
 }
