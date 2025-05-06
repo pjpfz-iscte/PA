@@ -55,7 +55,8 @@ class Test {
         val json = JsonArray(arrayOf(
             JsonNumber(1),
             JsonString("hello"),
-            JsonNumber(4)
+            JsonNumber(4),
+            JsonArray(arrayOf(JsonNumber(5), JsonNumber(3)))
         ))
 
         val resultado = json.filter { it is JsonNumber }
@@ -70,21 +71,21 @@ class Test {
                 "age" to JsonNumber(30),
                 "location" to JsonString("aqui"),
                 "codigo-postal" to JsonNull,
-                "outro" to JsonBoolean(true)
+                "outro" to JsonBoolean(true),
+                "b" to JsonArray(arrayOf(JsonNumber(1), JsonObject(mutableMapOf("algo" to JsonArray(arrayOf(JsonNumber(11))))), JsonNumber(2))),
             )
         )
 
-        val resultado = obj.filter { it is JsonString }
+        val resultado = obj.filter { it is JsonNumber && it.content.toInt() > 1}
         println(resultado)
     }
 
     @Test
     fun testeMapJsonArray(){
-        val json = JsonArray(arrayOf(
-            JsonNumber(1),
-            JsonNumber(10),
-            JsonNumber(4)
-        ))
+        val json = JsonArray(arrayOf(JsonNumber(1),
+            JsonObject(mutableMapOf("algo" to JsonArray(arrayOf(JsonNumber(11))))),
+            JsonNumber(2))
+        )
 
         val resultado = json.map { if (it is JsonNumber) JsonNumber(it.content.toInt() * 2)
         else it}

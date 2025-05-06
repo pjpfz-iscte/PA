@@ -13,20 +13,46 @@ data class JsonArray<T : JsonElement>(val content: Array<T>) : JsonElement() {
     }
 
 
-    fun filter(predicate: (JsonElement) -> Boolean): JsonArray<JsonElement> {
+    /*fun filter(predicate: (JsonElement) -> Boolean): JsonArray<JsonElement> {
         val filteredList = mutableListOf<JsonElement>()
         accept { e ->
             if (predicate(e))
                 filteredList.add(e)
         }
         return JsonArray(filteredList.toTypedArray())
+    }*/
+    fun filter(predicate: (JsonElement) -> Boolean): JsonArray<JsonElement>{
+        val filteredList = content.mapNotNull {
+            when (it) {
+                is JsonArray<*> ->{
+                    val filteredArray = it.filter(predicate)
+                    if(filteredArray.content.isNotEmpty()) filteredArray else null
+                }
+                is JsonObject -> {
+                    val filteredObject = it.filter(predicate)
+                    if(filteredObject.map.isNotEmpty()) filteredObject else null
+                }
+                else -> if(predicate(it)) it else null
+            }
+        }
+        return JsonArray(filteredList.toTypedArray())
     }
 
-    fun map(predicate: (JsonElement) -> JsonElement): JsonArray<JsonElement>{
+    /*fun map(predicate: (JsonElement) -> JsonElement): JsonArray<JsonElement>{
         val map = mutableListOf<JsonElement>()
         accept { e ->
             if(e !is JsonArray<*>){
                 map.add(predicate(e))
+            }
+        }
+        return JsonArray(map.toTypedArray())
+    }*/
+    fun map(predicate: (JsonElement) -> JsonElement): JsonArray<JsonElement>{
+        val map = content.map {
+            when(it){
+                is JsonArray<*> -> it.map(predicate)
+                is JsonObject -> it.map(predicate)
+                else -> predicate(it)
             }
         }
         return JsonArray(map.toTypedArray())
