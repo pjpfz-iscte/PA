@@ -1,6 +1,5 @@
 import org.junit.Assert.*
 import org.junit.Test
-import java.io.File
 
 class Test {
 
@@ -119,4 +118,68 @@ class Test {
         val jsonArray5 = JsonArray<JsonElement>(arrayOf(jsonString,jsonObject,jsonArray1))
         assertFalse(jsonArray5.isValid())
     }
+
+
+    data class Course(
+        val name: String,
+        val credits: Int,
+        val evaluation: List<EvalItem>
+    )
+
+
+    data class EvalItem(
+        val name: String,
+        val percentage: Double,
+        val mandatory: Boolean,
+        val type: EvalType?
+    )
+
+
+    enum class EvalType {
+        TEST, PROJECT, EXAM
+    }
+
+    @Test
+    fun testJsonObjectFromObject() {
+        val course = Course(
+            "PA", 6, listOf(
+                EvalItem("quizzes", .2, false, null),
+                EvalItem("project", .8, true, EvalType.PROJECT)
+            )
+        )
+
+        val expectedText = """{
+                 "name": "PA",
+                 "credits": 6,
+                 "evaluation": [
+                   {
+                     "name": "quizzes",
+                     "percentage": 0.2,
+                     "mandatory": false,
+                     "type": null
+                   },
+                   {
+                     "name": "project",
+                     "percentage": 0.8,
+                     "mandatory": true,
+                     "type": "PROJECT"
+                   }
+                 ]
+                }
+             """
+
+        assertEquals(JsonNull, jsonElementFromObject(null))
+        val string = "a"
+        assertEquals(JsonString(string), jsonElementFromObject(string))
+        val int = 1
+        val double = 1.2
+        assertEquals(JsonNumber(int), jsonElementFromObject(int))
+        assertEquals(JsonNumber(double), jsonElementFromObject(double))
+        val boolean = true
+        assertEquals(JsonBoolean(boolean), jsonElementFromObject(boolean))
+    }
+
+
+
+
 }

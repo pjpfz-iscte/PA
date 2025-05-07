@@ -1,6 +1,3 @@
-import kotlin.io.path.fileVisitor
-import kotlin.reflect.KClass
-
 data class JsonArray<T : JsonElement>(val content: Array<T>) : JsonElement() {
     override fun getText(identLevel: Int): String {
         var jsonArrayText = "[\n"
@@ -180,3 +177,14 @@ sealed class JsonElement {
     }
 }
 
+fun jsonElementFromObject(value: Any?): JsonElement{
+  if (value==null)
+      return JsonNull
+
+  return when(value::class){
+      String::class -> JsonString(value as String)
+      Int::class, Double::class -> JsonNumber(value as Number)
+      Boolean::class -> JsonBoolean(value as Boolean)
+      else -> throw IllegalArgumentException("The value type is not supported")
+  }
+}
