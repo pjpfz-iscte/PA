@@ -1,7 +1,6 @@
 import kotlin.io.path.fileVisitor
 import kotlin.reflect.KClass
 
-// Usei o data class porque só guardamos dados
 data class JsonArray<T : JsonElement>(val content: Array<T>) : JsonElement() {
     override fun getText(identLevel: Int): String {
         var jsonArrayText = "[\n"
@@ -62,48 +61,111 @@ data class JsonArray<T : JsonElement>(val content: Array<T>) : JsonElement() {
     override fun toString(): String {
         return getText()
     }
+
+    override fun accept(visitor: JsonVisitor) {
+        visitor.visit(this)
+        this.content.forEach { it.accept(visitor) }
+    }
 }
 
-data class JsonString(val content: String) : JsonElement() {
+data class JsonString(val content: String) : JsonPrimitive() {
     override fun getText(identLevel: Int): String {
         return "\"${content}\""
     }
 }
 
-data class JsonNumber(val content: Number) : JsonElement() {
+data class JsonNumber(val content: Number) : JsonPrimitive() {
     override fun getText(identLevel: Int): String {
         return content.toString()
     }
 }
 
-data class JsonBoolean(val content: Boolean) : JsonElement() {
+data class JsonBoolean(val content: Boolean) : JsonPrimitive() {
     override fun getText(identLevel: Int): String {
         return content.toString()
     }
 }
 
-
-// Usei o object para criar um sigleton, não faz sentido criar várias instâncias de um objeto vazio
-object JsonNull : JsonElement() {
+object JsonNull : JsonPrimitive() {
     override fun getText(identLevel: Int): String {
         return "null"
     }
 }
 
-sealed class JsonElement {
-    fun accept(visitor: JsonVisitor) {
-        when (this) {
-            is JsonArray<*> -> {
-                visitor.visit(this)
-                this.content.forEach { it.accept(visitor) }
-            }
-            is JsonObject -> {
-                visitor.visit(this)
-                this.map.values.forEach { it.accept(visitor) }
-            }
-            else -> visitor.visit(this)
+data class JsonObject (val map: MutableMap<String,JsonElement>):  JsonElement(){
+    override fun getText(identLevel: Int): String {
+        var jsonText = "{\n"
+        map.forEach{
+                entry -> jsonText += "${"\t".repeat(identLevel + 1)}\"${entry.key}\":${entry.value.getText(identLevel + 1)},\n"
         }
+        jsonText = jsonText.removeSuffix(",\n")
+        jsonText += "\n${"\t".repeat(identLevel)}}"
+        return jsonText
     }
+
+    fun filter(predicate: (JsonElement) -> Boolean): JsonObject{
+        val filteredMap = mutableMapOf<String, JsonElement>()
+        /*map.forEach{ (key, value) ->
+            value.accept {
+                if (predicate(it))
+                    filteredMap[key] = value
+                }
+        }*/
+        map.forEach { (key, value) ->
+            when (value) {
+                is JsonArray<*> -> {
+                    val filtered = value.filter(predicate)
+                    if (filtered.content.isNotEmpty()) {
+                        filteredMap[key] = filtered
+                    }
+                }
+
+                is JsonObject -> {
+                    val filtered = value.filter(predicate)
+                    if (filtered.map.isNotEmpty()) {
+                        filteredMap[key] = filtered
+                    }
+                }
+
+                else -> {
+                    if (predicate(value)) {
+                        filteredMap[key] = value
+                    }
+                }
+            }
+        }
+        return JsonObject(filteredMap)
+    }
+
+    fun map(predicate: (JsonElement) -> JsonElement) : JsonObject{
+        val mapped = mutableMapOf<String, JsonElement>()
+        map.forEach{ (key, value) ->
+            val mappedValue = when (value) {
+                is JsonArray<*> -> value.map(predicate)
+                is JsonObject -> value.map(predicate)
+                else -> predicate(value)
+            }
+            mapped[key] = mappedValue
+        }
+        return JsonObject(mapped)
+    }
+
+
+    override fun accept(visitor: JsonVisitor) {
+        visitor.visit(this)
+        map.values.forEach{ it.accept(visitor) }
+    }
+
+}
+
+sealed class JsonPrimitive : JsonElement(){
+    override fun accept(visitor: JsonVisitor) {
+        visitor.visit(this)
+    }
+}
+
+sealed class JsonElement {
+    abstract fun accept(visitor: JsonVisitor)
 
     abstract fun getText(identLevel: Int=0): String
 

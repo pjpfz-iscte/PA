@@ -26,29 +26,3 @@ class JsonValidator : JsonVisitor {
 
     fun isValidJson(): Boolean = isValid
 }
-
-class FilterVisitor: JsonVisitor{
-    override fun visit(element: JsonElement) {
-        TODO("Not yet implemented")
-    }
-
-    override fun visit(array: JsonArray<*>) {
-        TODO("Not yet implemented")
-    }
-
-    override fun visit(obj: JsonObject) {
-        TODO("Not yet implemented")
-    }
-}
-
-class MapVisitor(predicate: (JsonElement)->JsonElement): JsonVisitor{
-    override fun visit(element: JsonElement) {}
-
-    override fun visit(array: JsonArray<*>) {
-        TODO("Not yet implemented")
-    }
-
-    override fun visit(obj: JsonObject) {
-        TODO("Not yet implemented")
-    }
-}
