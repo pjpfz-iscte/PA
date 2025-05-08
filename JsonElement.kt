@@ -1,4 +1,7 @@
-data class JsonArray<T : JsonElement>(val content: Array<T>) : JsonElement() {
+import kotlin.io.path.fileVisitor
+import kotlin.reflect.KClass
+
+data class JsonArray<T : JsonElement>(val content: MutableList<T>) : JsonElement() {
     override fun getText(identLevel: Int): String {
         var jsonArrayText = "[\n"
         content.forEach {
@@ -9,50 +12,20 @@ data class JsonArray<T : JsonElement>(val content: Array<T>) : JsonElement() {
         return jsonArrayText
     }
 
-
-    /*fun filter(predicate: (JsonElement) -> Boolean): JsonArray<JsonElement> {
-        val filteredList = mutableListOf<JsonElement>()
-        accept { e ->
-            if (predicate(e))
-                filteredList.add(e)
-        }
-        return JsonArray(filteredList.toTypedArray())
-    }*/
     fun filter(predicate: (JsonElement) -> Boolean): JsonArray<JsonElement>{
-        val filteredList = content.mapNotNull {
-            when (it) {
-                is JsonArray<*> ->{
-                    val filteredArray = it.filter(predicate)
-                    if(filteredArray.content.isNotEmpty()) filteredArray else null
-                }
-                is JsonObject -> {
-                    val filteredObject = it.filter(predicate)
-                    if(filteredObject.map.isNotEmpty()) filteredObject else null
-                }
-                else -> if(predicate(it)) it else null
-            }
+        val filteredList = mutableListOf<JsonElement>()
+        content.forEach {
+            element -> if(predicate(element)) filteredList.add(element)
         }
-        return JsonArray(filteredList.toTypedArray())
+        return JsonArray(filteredList)
     }
 
-    /*fun map(predicate: (JsonElement) -> JsonElement): JsonArray<JsonElement>{
-        val map = mutableListOf<JsonElement>()
-        accept { e ->
-            if(e !is JsonArray<*>){
-                map.add(predicate(e))
-            }
-        }
-        return JsonArray(map.toTypedArray())
-    }*/
     fun map(predicate: (JsonElement) -> JsonElement): JsonArray<JsonElement>{
-        val map = content.map {
-            when(it){
-                is JsonArray<*> -> it.map(predicate)
-                is JsonObject -> it.map(predicate)
-                else -> predicate(it)
-            }
+        val map = mutableListOf<JsonElement>()
+        content.forEach {
+            element -> map.add(predicate(element))
         }
-        return JsonArray(map.toTypedArray())
+        return JsonArray(map)
     }
 
     override fun toString(): String {
@@ -100,53 +73,13 @@ data class JsonObject (val map: MutableMap<String,JsonElement>):  JsonElement(){
         return jsonText
     }
 
-    fun filter(predicate: (JsonElement) -> Boolean): JsonObject{
+    fun filter(predicate: (String, JsonElement) -> Boolean): JsonObject{
         val filteredMap = mutableMapOf<String, JsonElement>()
-        /*map.forEach{ (key, value) ->
-            value.accept {
-                if (predicate(it))
-                    filteredMap[key] = value
-                }
-        }*/
-        map.forEach { (key, value) ->
-            when (value) {
-                is JsonArray<*> -> {
-                    val filtered = value.filter(predicate)
-                    if (filtered.content.isNotEmpty()) {
-                        filteredMap[key] = filtered
-                    }
-                }
-
-                is JsonObject -> {
-                    val filtered = value.filter(predicate)
-                    if (filtered.map.isNotEmpty()) {
-                        filteredMap[key] = filtered
-                    }
-                }
-
-                else -> {
-                    if (predicate(value)) {
-                        filteredMap[key] = value
-                    }
-                }
-            }
+        map.forEach{
+            (key,value) -> if(predicate(key,value)) filteredMap[key] = value
         }
         return JsonObject(filteredMap)
     }
-
-    fun map(predicate: (JsonElement) -> JsonElement) : JsonObject{
-        val mapped = mutableMapOf<String, JsonElement>()
-        map.forEach{ (key, value) ->
-            val mappedValue = when (value) {
-                is JsonArray<*> -> value.map(predicate)
-                is JsonObject -> value.map(predicate)
-                else -> predicate(value)
-            }
-            mapped[key] = mappedValue
-        }
-        return JsonObject(mapped)
-    }
-
 
     override fun accept(visitor: JsonVisitor) {
         visitor.visit(this)

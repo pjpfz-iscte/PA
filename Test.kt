@@ -14,7 +14,7 @@ class Test {
     @Test
     fun testGetJsonText(){
         val jsonString = JsonString("String")
-        val jsonArray = JsonArray(arrayOf(jsonString, jsonString))
+        val jsonArray = JsonArray(mutableListOf(jsonString, jsonString))
         val jsonInt = JsonNumber(2)
         val jsonFloat = JsonNumber(2.4)
         val jsonBoolean = JsonBoolean(true)
@@ -51,15 +51,19 @@ class Test {
 
     @Test
     fun testeFilterJsonArray(){
-        val json = JsonArray(arrayOf(
+        val json = JsonArray(
+            mutableListOf(
             JsonNumber(1),
             JsonString("hello"),
             JsonNumber(4),
-            JsonArray(arrayOf(JsonNumber(5), JsonNumber(3)))
-        ))
+            JsonArray(mutableListOf(JsonNumber(5), JsonNumber(3)))
+        )
+        )
 
         val resultado = json.filter { it is JsonNumber }
         println(resultado.getText())
+        val expected = "[\n"+ "\t1,"+ "\n\t4" +"\n]"
+        assertEquals(expected, resultado.getText())
     }
 
     @Test
@@ -71,24 +75,28 @@ class Test {
                 "location" to JsonString("aqui"),
                 "codigo-postal" to JsonNull,
                 "outro" to JsonBoolean(true),
-                "b" to JsonArray(arrayOf(JsonNumber(1), JsonObject(mutableMapOf("algo" to JsonArray(arrayOf(JsonNumber(11))))), JsonNumber(2))),
             )
         )
-
-        val resultado = obj.filter { it is JsonNumber && it.content.toInt() > 1}
-        println(resultado)
+        val resultado = obj.filter { s, jsonElement ->  jsonElement is JsonNumber}
+        val expected = "{\n"+ "\t\"age\":30"+ "\n}"
+        println(resultado.getText())
+        assertEquals(expected, resultado.getText())
     }
 
     @Test
     fun testeMapJsonArray(){
-        val json = JsonArray(arrayOf(JsonNumber(1),
-            JsonObject(mutableMapOf("algo" to JsonArray(arrayOf(JsonNumber(11))))),
+        val json = JsonArray(
+            mutableListOf(JsonNumber(1),
+            JsonString("olá"),
             JsonNumber(2))
         )
 
         val resultado = json.map { if (it is JsonNumber) JsonNumber(it.content.toInt() * 2)
         else it}
         print(resultado)
+        val expected = "[\n"+ "\t2,\n" + "\t\"olá\",\n" + "\t4" + "\n]"
+        println(resultado.getText())
+        assertEquals(expected, resultado.getText())
     }
 
     @Test
@@ -97,7 +105,9 @@ class Test {
         print(jsonObject1.isValid())
         assertTrue(jsonObject1.isValid())
         val jsonNull = JsonNull
-        val jsonObject2 = JsonObject(mutableMapOf("Olá" to JsonString("Mundo"), "jsonArray" to JsonArray<JsonElement>(arrayOf(jsonNull,jsonNull,jsonNull))))
+        val jsonObject2 = JsonObject(mutableMapOf("Olá" to JsonString("Mundo"), "jsonArray" to JsonArray<JsonElement>(
+            mutableListOf(jsonNull,jsonNull,jsonNull)
+        )))
         assertFalse(jsonObject2.isValid())
     }
 
@@ -107,15 +117,15 @@ class Test {
         val jsonNull = JsonNull
         val jsonObject = JsonObject(mutableMapOf("Teste" to jsonString))
 
-        val jsonArray1 = JsonArray<JsonElement>(arrayOf(jsonString))
+        val jsonArray1 = JsonArray<JsonElement>(mutableListOf(jsonString))
         assertTrue(jsonArray1.isValid())
-        val jsonArray2 = JsonArray<JsonElement>(arrayOf(jsonObject,jsonObject))
+        val jsonArray2 = JsonArray<JsonElement>(mutableListOf(jsonObject,jsonObject))
         assertTrue(jsonArray2.isValid())
-        val jsonArray3 = JsonArray<JsonElement>(arrayOf(jsonArray1,jsonArray1,jsonArray1))
+        val jsonArray3 = JsonArray<JsonElement>(mutableListOf(jsonArray1,jsonArray1,jsonArray1))
         assertTrue(jsonArray3.isValid())
-        val jsonArray4 = JsonArray<JsonElement>(arrayOf(jsonNull,jsonNull,jsonNull))
+        val jsonArray4 = JsonArray<JsonElement>(mutableListOf(jsonNull,jsonNull,jsonNull))
         assertFalse(jsonArray4.isValid())
-        val jsonArray5 = JsonArray<JsonElement>(arrayOf(jsonString,jsonObject,jsonArray1))
+        val jsonArray5 = JsonArray<JsonElement>(mutableListOf(jsonString,jsonObject,jsonArray1))
         assertFalse(jsonArray5.isValid())
     }
 
