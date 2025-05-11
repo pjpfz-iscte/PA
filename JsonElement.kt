@@ -1,5 +1,7 @@
+import javax.lang.model.type.PrimitiveType
 import kotlin.io.path.fileVisitor
 import kotlin.reflect.KClass
+import kotlin.reflect.full.*
 
 data class JsonArray<T : JsonElement>(val content: MutableList<T>) : JsonElement() {
     override fun getText(identLevel: Int): String {
@@ -114,10 +116,32 @@ fun jsonElementFromObject(value: Any?): JsonElement{
   if (value==null)
       return JsonNull
 
-  return when(value::class){
-      String::class -> JsonString(value as String)
-      Int::class, Double::class -> JsonNumber(value as Number)
-      Boolean::class -> JsonBoolean(value as Boolean)
-      else -> throw IllegalArgumentException("The value type is not supported")
+ when(value){
+      is String -> return JsonString(value)
+      is Number -> return JsonNumber(value as Number)
+      is Boolean -> return JsonBoolean(value as Boolean)
+      is List<*> -> {
+          val elementsList : MutableList<JsonElement> = mutableListOf()
+            value.forEach {
+                elementsList.add(jsonElementFromObject(it))
+            }
+          return JsonArray(elementsList)
+      }
+     is Enum<*> -> return JsonString(value.name.uppercase())
+
+      else -> {
+          val clazz = value::class
+          val propertyNames = clazz.primaryConstructor!!.parameters.map { it.name }
+          val properties = propertyNames.map { name ->
+              clazz.memberProperties.find { it.name == name }
+          }
+          val map = mutableMapOf<String, JsonElement>()
+          properties.forEach {
+              if (it != null) {
+                  map[it.name] = jsonElementFromObject(it.call(value))
+              }
+          }
+          return JsonObject(map)
+      }
   }
 }

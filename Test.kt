@@ -158,25 +158,24 @@ class Test {
             )
         )
 
-        val expectedText = """{
-                 "name": "PA",
-                 "credits": 6,
-                 "evaluation": [
-                   {
-                     "name": "quizzes",
-                     "percentage": 0.2,
-                     "mandatory": false,
-                     "type": null
-                   },
-                   {
-                     "name": "project",
-                     "percentage": 0.8,
-                     "mandatory": true,
-                     "type": "PROJECT"
-                   }
-                 ]
-                }
-             """
+        val expectedText = "{\n" +
+                "\t\"name\":\"PA\",\n" +
+                "\t\"credits\":6,\n" +
+                "\t\"evaluation\":[\n" +
+                "\t\t{\n" +
+                "\t\t\t\"name\":\"quizzes\",\n" +
+                "\t\t\t\"percentage\":0.2,\n" +
+                "\t\t\t\"mandatory\":false,\n" +
+                "\t\t\t\"type\":null\n" +
+                "\t\t},\n" +
+                "\t\t{\n" +
+                "\t\t\t\"name\":\"project\",\n" +
+                "\t\t\t\"percentage\":0.8,\n" +
+                "\t\t\t\"mandatory\":true,\n" +
+                "\t\t\t\"type\":\"PROJECT\"\n" +
+                "\t\t}\n" +
+                "\t]\n" +
+                "}"
 
         assertEquals(JsonNull, jsonElementFromObject(null))
         val string = "a"
@@ -187,6 +186,8 @@ class Test {
         assertEquals(JsonNumber(double), jsonElementFromObject(double))
         val boolean = true
         assertEquals(JsonBoolean(boolean), jsonElementFromObject(boolean))
+        assertEquals(JsonArray(mutableListOf(JsonString(string), JsonString(string))), jsonElementFromObject(mutableListOf(string, string)))
+        assertEquals(expectedText, jsonElementFromObject(course).getText())
     }
 
 
