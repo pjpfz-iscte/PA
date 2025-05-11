@@ -3,7 +3,7 @@ import kotlin.io.path.fileVisitor
 import kotlin.reflect.KClass
 import kotlin.reflect.full.*
 
-data class JsonArray<T : JsonElement>(val content: MutableList<T>) : JsonElement() {
+data class JsonArray<T : JsonElement>(val content: List<T>) : JsonElement() {
     override fun getText(identLevel: Int): String {
         var jsonArrayText = "[\n"
         content.forEach {
@@ -64,7 +64,7 @@ object JsonNull : JsonPrimitive() {
     }
 }
 
-data class JsonObject (val map: MutableMap<String,JsonElement>):  JsonElement(){
+data class JsonObject (val map: Map<String,JsonElement>):  JsonElement(){
     override fun getText(identLevel: Int): String {
         var jsonText = "{\n"
         map.forEach{
@@ -116,32 +116,22 @@ fun jsonElementFromObject(value: Any?): JsonElement{
   if (value==null)
       return JsonNull
 
- when(value){
-      is String -> return JsonString(value)
-      is Number -> return JsonNumber(value as Number)
-      is Boolean -> return JsonBoolean(value as Boolean)
-      is List<*> -> {
-          val elementsList : MutableList<JsonElement> = mutableListOf()
-            value.forEach {
-                elementsList.add(jsonElementFromObject(it))
-            }
-          return JsonArray(elementsList)
-      }
-     is Enum<*> -> return JsonString(value.name.uppercase())
-
+ return when(value){
+      is String ->  JsonString(value)
+      is Number ->  JsonNumber(value)
+      is Boolean ->  JsonBoolean(value)
+      is List<*> -> { JsonArray(value.map{jsonElementFromObject(it)})}
+      is Enum<*> ->  JsonString(value.name.uppercase())
       else -> {
           val clazz = value::class
-          val propertyNames = clazz.primaryConstructor!!.parameters.map { it.name }
-          val properties = propertyNames.map { name ->
-              clazz.memberProperties.find { it.name == name }
-          }
-          val map = mutableMapOf<String, JsonElement>()
-          properties.forEach {
-              if (it != null) {
-                  map[it.name] = jsonElementFromObject(it.call(value))
+          val constructorParams = clazz.primaryConstructor?.parameters.orEmpty()
+          val map = constructorParams.mapNotNull { param ->
+              val property = clazz.memberProperties.find { it.name == param.name }
+              property?.name?.let { name ->
+                  name to jsonElementFromObject(property.call(value))
               }
-          }
-          return JsonObject(map)
+          }.toMap()
+          JsonObject(map)
       }
   }
 }
