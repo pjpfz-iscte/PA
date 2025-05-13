@@ -177,17 +177,22 @@ class Test {
                 "\t]\n" +
                 "}"
 
-        assertEquals(JsonNull, jsonElementFromObject(null))
+        assertEquals(JsonNull, createJsonElementFromObject(null))
         val string = "a"
-        assertEquals(JsonString(string), jsonElementFromObject(string))
+        assertEquals(JsonString(string), createJsonElementFromObject(string))
         val int = 1
         val double = 1.2
-        assertEquals(JsonNumber(int), jsonElementFromObject(int))
-        assertEquals(JsonNumber(double), jsonElementFromObject(double))
+        assertEquals(JsonNumber(int), createJsonElementFromObject(int))
+        assertEquals(JsonNumber(double), createJsonElementFromObject(double))
         val boolean = true
-        assertEquals(JsonBoolean(boolean), jsonElementFromObject(boolean))
-        assertEquals(JsonArray(mutableListOf(JsonString(string), JsonString(string))), jsonElementFromObject(mutableListOf(string, string)))
-        assertEquals(expectedText, jsonElementFromObject(course).getText())
+        assertEquals(JsonBoolean(boolean), createJsonElementFromObject(boolean))
+        assertEquals(JsonArray(mutableListOf(JsonString(string), JsonString(string))), createJsonElementFromObject(mutableListOf(string, string)))
+        assertEquals(expectedText, createJsonElementFromObject(course).getText())
+
+        val map = mutableMapOf("name" to "PA", "credits" to 6)
+        val jsonObject = JsonObject(mutableMapOf("name" to JsonString("PA"), "credits" to JsonNumber(6)))
+        assertEquals(createJsonElementFromObject(map), jsonObject)
+
     }
 
 
