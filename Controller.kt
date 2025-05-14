@@ -63,7 +63,7 @@ class Controller(){
             if(element is JsonNumber){
                 mapOperation(element, op, value)
             }else{
-                JsonNull
+                element
             }
         }
     }
@@ -106,10 +106,30 @@ class Controller(){
 
     private fun mapOperation(element : JsonNumber, op: String, value: Int) : JsonElement{
         return when {
-            op == "+" -> JsonNumber(element.content.toDouble() + value.toDouble())
-            op == "-" -> JsonNumber(element.content.toDouble() - value.toDouble())
-            op == "*" -> JsonNumber(element.content.toDouble() * value.toDouble())
-            op == "/" -> JsonNumber(element.content.toDouble() / value.toDouble())
+            op == "+" -> {val result = element.content.toDouble() + value.toDouble()
+                if(result % 1.0 == 0.0)
+                    JsonNumber(result.toInt())
+                else
+                    JsonNumber(result)
+            }
+            op == "-" -> {val result = element.content.toDouble() - value.toDouble()
+                if(result % 1.0 == 0.0)
+                    JsonNumber(result.toInt())
+                else
+                    JsonNumber(result)
+            }
+            op == "*" -> {val result = element.content.toDouble() * value.toDouble()
+                if(result % 1.0 == 0.0)
+                    JsonNumber(result.toInt())
+                else
+                    JsonNumber(result)
+            }
+            op == "/" -> {val result = element.content.toDouble() / value.toDouble()
+                if(result % 1.0 == 0.0)
+                    JsonNumber(result.toInt())
+                else
+                    JsonNumber(result)
+            }
             else -> JsonNull
         }
     }

@@ -93,7 +93,6 @@ class Test {
 
         val resultado = json.map { if (it is JsonNumber) JsonNumber(it.content.toInt() * 2)
         else it}
-        print(resultado)
         val expected = "[\n"+ "\t2,\n" + "\t\"olá\",\n" + "\t4" + "\n]"
         println(resultado.getText())
         assertEquals(expected, resultado.getText())
@@ -195,7 +194,60 @@ class Test {
 
     }
 
+    @Test
+    fun apiTest(){
 
+        val obj = JsonObject(
+            mutableMapOf(
+                "name" to JsonString("Alice"),
+                "age" to JsonNumber(30),
+                "age2" to JsonNumber(15),
+                "age3" to JsonNumber(5),
+                "location" to JsonString("aqui"),
+                "codigo-postal" to JsonNull,
+                "outro" to JsonBoolean(true),
+            )
+        )
+
+        val array = JsonArray(
+            mutableListOf(
+                JsonNumber(1),
+                JsonString("hello"),
+                JsonNumber(4),
+                JsonNull
+            )
+        )
+
+        var app = GetJson(Controller::class)
+        Data.data = obj
+        Data.array = array
+        val cont = Controller()
+
+        val filteredObject1 = cont.filterObject(key = "name").getText()
+        val filteredObject2 = cont.filterObject(null, type = "JsonNumber", op = ">=", value = "15").getText()
+
+        val expectedFilteredObject1 = "{\n"+ "\t\"name\":\"Alice\""+ "\n}"
+        val expectedFilteredObject2 = "{\n"+ "\t\"age\":30,"+ "\n\t\"age2\":15" + "\n}"
+
+        assertEquals(expectedFilteredObject1, filteredObject1)
+        assertEquals(expectedFilteredObject2, filteredObject2)
+
+        val filteredArray1 = cont.filterArray(type = "JsonNumber").getText()
+        val expectedFilteredArray1 = "[\n"+ "\t1,"+ "\n\t4" +"\n]"
+
+        assertEquals(expectedFilteredArray1, filteredArray1)
+
+        val mappedArray1 = cont.mapArray(op = "*", value = 2).getText()
+        val expectedMappedArray1 = "[\n"+ "\t2,\n" + "\t\"hello\",\n" + "\t8,\n" + "\tnull"+ "\n]"
+
+        assertEquals(expectedMappedArray1, mappedArray1)
+
+        val expectedObject = "{\n"+ "\t\"name\":\"Alice\","+ "\n\t\"age\":30," + "\n\t\"age2\":15,"+
+                "\n\t\"age3\":5," + "\n\t\"location\":\"aqui\","+ "\n\t\"codigo-postal\":null," + "\n\t\"outro\":true" + "\n}"
+
+        assertEquals(expectedObject, obj.getText())
+        assertEquals(expectedObject, cont.toJsonText())
+    }
 
 
 }
