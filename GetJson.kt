@@ -1,6 +1,8 @@
 import kotlin.reflect.KClass
 import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.memberFunctions
+import java.net.http.HttpRequest
+import java.net.http.HttpClient
 
 class GetJson(
     private val controller: KClass<*>
@@ -47,4 +49,6 @@ class GetJson(
         TODO()
     }
 
+    // temos de estar à espera de um pedido http, quando recebermos o pedido ver se há alguma anotação que corresponda a esse pedido,
+    // invocar a função e converter o resultado para json e enviar
 }
