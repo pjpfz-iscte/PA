@@ -2,7 +2,6 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class Test {
-
     @Test
     fun testConstructor(){
         val jsonElement = JsonString("Mundo");
@@ -31,7 +30,7 @@ class Test {
         )
 
         val jsonTextTest = JsonObject(content)
-        val obtainedText = jsonTextTest.getText()
+        val obtainedText = jsonTextTest.toString()
         val expectedText = "{\n" +
                 "\t\"jsonString\":\"String\",\n" +
                 "\t\"jsonArray\":[\n" +
@@ -61,9 +60,9 @@ class Test {
         )
 
         val resultado = json.filter { it is JsonNumber }
-        println(resultado.getText())
+        println(resultado.toString())
         val expected = "[\n"+ "\t1,"+ "\n\t4" +"\n]"
-        assertEquals(expected, resultado.getText())
+        assertEquals(expected, resultado.toString())
     }
 
     @Test
@@ -79,8 +78,8 @@ class Test {
         )
         val resultado = obj.filter { s, jsonElement ->  jsonElement is JsonNumber}
         val expected = "{\n"+ "\t\"age\":30"+ "\n}"
-        println(resultado.getText())
-        assertEquals(expected, resultado.getText())
+        println(resultado.toString())
+        assertEquals(expected, resultado.toString())
     }
 
     @Test
@@ -94,8 +93,8 @@ class Test {
         val resultado = json.map { if (it is JsonNumber) JsonNumber(it.content.toInt() * 2)
         else it}
         val expected = "[\n"+ "\t2,\n" + "\t\"olá\",\n" + "\t4" + "\n]"
-        println(resultado.getText())
-        assertEquals(expected, resultado.getText())
+        println(resultado.toString())
+        assertEquals(expected, resultado.toString())
     }
 
     @Test
@@ -186,7 +185,7 @@ class Test {
         val boolean = true
         assertEquals(JsonBoolean(boolean), createJsonElementFromObject(boolean))
         assertEquals(JsonArray(mutableListOf(JsonString(string), JsonString(string))), createJsonElementFromObject(mutableListOf(string, string)))
-        assertEquals(expectedText, createJsonElementFromObject(course).getText())
+        assertEquals(expectedText, createJsonElementFromObject(course).toString())
 
         val map = mutableMapOf("name" to "PA", "credits" to 6)
         val jsonObject = JsonObject(mutableMapOf("name" to JsonString("PA"), "credits" to JsonNumber(6)))
@@ -223,8 +222,8 @@ class Test {
         Data.array = array
         val cont = Controller()
 
-        val filteredObject1 = cont.filterObject(key = "name").getText()
-        val filteredObject2 = cont.filterObject(null, type = "JsonNumber", op = ">=", value = "15").getText()
+        val filteredObject1 = cont.filterObject(key = "name").toString()
+        val filteredObject2 = cont.filterObject(null, type = "JsonNumber", op = ">=", value = "15").toString()
 
         val expectedFilteredObject1 = "{\n"+ "\t\"name\":\"Alice\""+ "\n}"
         val expectedFilteredObject2 = "{\n"+ "\t\"age\":30,"+ "\n\t\"age2\":15" + "\n}"
@@ -232,12 +231,12 @@ class Test {
         assertEquals(expectedFilteredObject1, filteredObject1)
         assertEquals(expectedFilteredObject2, filteredObject2)
 
-        val filteredArray1 = cont.filterArray(type = "JsonNumber").getText()
+        val filteredArray1 = cont.filterArray(type = "JsonNumber").toString()
         val expectedFilteredArray1 = "[\n"+ "\t1,"+ "\n\t4" +"\n]"
 
         assertEquals(expectedFilteredArray1, filteredArray1)
 
-        val mappedArray1 = cont.mapArray(op = "*", value = 2).getText()
+        val mappedArray1 = cont.mapArray(op = "*", value = 2).toString()
         val expectedMappedArray1 = "[\n"+ "\t2,\n" + "\t\"hello\",\n" + "\t8,\n" + "\tnull"+ "\n]"
 
         assertEquals(expectedMappedArray1, mappedArray1)
@@ -245,7 +244,7 @@ class Test {
         val expectedObject = "{\n"+ "\t\"name\":\"Alice\","+ "\n\t\"age\":30," + "\n\t\"age2\":15,"+
                 "\n\t\"age3\":5," + "\n\t\"location\":\"aqui\","+ "\n\t\"codigo-postal\":null," + "\n\t\"outro\":true" + "\n}"
 
-        assertEquals(expectedObject, obj.getText())
+        assertEquals(expectedObject, obj.toString())
         assertEquals(expectedObject, cont.toJsonText())
     }
 

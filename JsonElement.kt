@@ -5,6 +5,7 @@ import kotlin.reflect.full.*
  *
  * @param T the type of elements, which must be [JsonElement]
  * @property content a list of JSON Elements.
+ *
  */
 data class JsonArray<T : JsonElement>(val content: List<T>) : JsonElement() {
     override fun getText(identLevel: Int): String {
@@ -22,6 +23,13 @@ data class JsonArray<T : JsonElement>(val content: List<T>) : JsonElement() {
      *
      * @param predicate a function to test each element.
      * @return a new JSON Array with elements that match the predicate.
+     *
+     * @sample
+     * ```kotlin
+     * val jsonArray = JsonArray(listOf(JsonString("apple"), JsonString("banana"), JsonString("cherry")))
+     * val filtered = jsonArray.filter { (it as JsonString).content.startsWith("b") }
+     * println(filtered) // JsonArray with "banana"
+     * ```
      */
     fun filter(predicate: (JsonElement) -> Boolean): JsonArray<JsonElement> {
         val filteredList = mutableListOf<JsonElement>()
@@ -37,6 +45,16 @@ data class JsonArray<T : JsonElement>(val content: List<T>) : JsonElement() {
      *
      * @param predicate a function to apply to each element.
      * @return a new JSON Array with the mapped elements.
+     *
+     * @sample
+     * ```kotlin
+     * val jsonArray = JsonArray(listOf(JsonString("apple"), JsonString("banana")))
+     * val mapped = jsonArray.map {
+     *     val str = (it as JsonString).content.uppercase()
+     *     JsonString(str)
+     * }
+     * println(mapped) // JsonArray with "APPLE", "BANANA"
+     * ```
      */
     fun map(predicate: (JsonElement) -> JsonElement): JsonArray<JsonElement> {
         val map = mutableListOf<JsonElement>()
@@ -46,14 +64,12 @@ data class JsonArray<T : JsonElement>(val content: List<T>) : JsonElement() {
         return JsonArray(map)
     }
 
-    override fun toString(): String {
-        return getText()
-    }
-
     override fun accept(visitor: JsonVisitor) {
         visitor.visit(this)
         this.content.forEach { it.accept(visitor) }
     }
+
+    override fun toString() = getText()
 }
 
 /**
@@ -65,6 +81,8 @@ data class JsonString(val content: String) : JsonPrimitive() {
     override fun getText(identLevel: Int): String {
         return "\"${content}\""
     }
+
+    override fun toString() = getText()
 }
 
 /**
@@ -76,6 +94,8 @@ data class JsonNumber(val content: Number) : JsonPrimitive() {
     override fun getText(identLevel: Int): String {
         return content.toString()
     }
+
+    override fun toString() = getText()
 }
 
 /**
@@ -87,6 +107,8 @@ data class JsonBoolean(val content: Boolean) : JsonPrimitive() {
     override fun getText(identLevel: Int): String {
         return content.toString()
     }
+
+    override fun toString() = getText()
 }
 
 
@@ -97,6 +119,8 @@ object JsonNull : JsonPrimitive() {
     override fun getText(identLevel: Int): String {
         return "null"
     }
+
+    override fun toString() = getText()
 }
 
 
@@ -121,6 +145,16 @@ data class JsonObject(val map: Map<String, JsonElement>) : JsonElement() {
      *
      * @param predicate a function that receives key and value and returns true if the entry should be kept.
      * @return a new JSON Object with the filtered entries.
+     *
+     * @sample
+     * ```kotlin
+     * val jsonObject = JsonObject(mapOf(
+     *     "name" to JsonString("Filipa"),
+     *     "age" to JsonNumber(28)
+     * ))
+     * val filtered = jsonObject.filter { _, value -> value is JsonString }
+     * println(filtered) // JsonObject with only "name" entry
+     * ```
      */
     fun filter(predicate: (String, JsonElement) -> Boolean): JsonObject {
         val filteredMap = mutableMapOf<String, JsonElement>()
@@ -135,6 +169,7 @@ data class JsonObject(val map: Map<String, JsonElement>) : JsonElement() {
         map.values.forEach { it.accept(visitor) }
     }
 
+    override fun toString() = getText()
 }
 
 /**
@@ -164,7 +199,7 @@ sealed class JsonElement {
      * @param identLevel the ident level of the current JsonElement
      * @return the string which represents the JsonElement
      */
-    abstract fun getText(identLevel: Int = 0): String
+    internal abstract fun getText(identLevel: Int = 0): String
 
 
     /**
@@ -178,9 +213,7 @@ sealed class JsonElement {
         return jsonValidator.isValidJson()
     }
 
-    override fun toString(): String {
-        return getText()
-    }
+    override fun toString() = getText()
 }
 
 /**
@@ -198,6 +231,14 @@ sealed class JsonElement {
  *
  * @param value the value to be converted.
  * @return a JSON Element representing the value.
+ *
+ * @sample
+ * ```kotlin
+ * data class Person(val name: String, val age: Int)
+ * val person = Person("Eduardo", 30)
+ * val personJson = createJsonElementFromObject(person)
+ * println(personJson)
+ * ```
  */
 fun createJsonElementFromObject(value: Any?): JsonElement {
     if (value == null) return JsonNull
