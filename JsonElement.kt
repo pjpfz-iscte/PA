@@ -119,8 +119,6 @@ object JsonNull : JsonPrimitive() {
     override fun getText(identLevel: Int): String {
         return "null"
     }
-
-    override fun toString() = getText()
 }
 
 
