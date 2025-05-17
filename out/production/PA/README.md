@@ -49,8 +49,8 @@ println(onlyStrings.getText())
 ### Mapear elementos de um array
 ```kotlin
 val uppercased = array.map {
-if (it is JsonString) JsonString(it.content.uppercase())
-else it
+    if (it is JsonString) JsonString(it.content.uppercase())
+    else it
 }
 println(uppercased.getText())
 ```
@@ -58,11 +58,11 @@ println(uppercased.getText())
 ### Criar um JsonObject
 ```kotlin
 val obj = JsonObject(
-mapOf(
-"nome" to JsonString("Filipa"),
-"idade" to JsonNumber(22),
-"ativa" to JsonBoolean(true)
-)
+    mapOf(
+        "nome" to JsonString("Rui"),
+        "idade" to JsonNumber(30),
+        "ativa" to JsonBoolean(true)
+    )
 )
 println(obj.getText())
 ```
@@ -86,7 +86,7 @@ Permite converter objetos Kotlin em elementos JSON:
 ```kotlin
 data class Pessoa(val nome: String, val idade: Int)
 
-val pessoa = Pessoa("Eduardo", 30)
+val pessoa = Pessoa("Rui", 30)
 val json = createJsonElementFromObject(pessoa)
 println(json.getText())
 ```
