@@ -4,7 +4,6 @@ import java.net.HttpURLConnection
 import java.net.URL
 
 class Test {
-
     @Test
     fun testConstructor(){
         val jsonElement = JsonString("Mundo");
@@ -33,7 +32,7 @@ class Test {
         )
 
         val jsonTextTest = JsonObject(content)
-        val obtainedText = jsonTextTest.getText()
+        val obtainedText = jsonTextTest.toString()
         val expectedText = "{\n" +
                 "\t\"jsonString\":\"String\",\n" +
                 "\t\"jsonArray\":[\n" +
@@ -63,9 +62,9 @@ class Test {
         )
 
         val resultado = json.filter { it is JsonNumber }
-        println(resultado.getText())
+        println(resultado.toString())
         val expected = "[\n"+ "\t1,"+ "\n\t4" +"\n]"
-        assertEquals(expected, resultado.getText())
+        assertEquals(expected, resultado.toString())
     }
 
     @Test
@@ -81,8 +80,8 @@ class Test {
         )
         val resultado = obj.filter { s, jsonElement ->  jsonElement is JsonNumber}
         val expected = "{\n"+ "\t\"age\":30"+ "\n}"
-        println(resultado.getText())
-        assertEquals(expected, resultado.getText())
+        println(resultado.toString())
+        assertEquals(expected, resultado.toString())
     }
 
     @Test
@@ -96,8 +95,8 @@ class Test {
         val resultado = json.map { if (it is JsonNumber) JsonNumber(it.content.toInt() * 2)
         else it}
         val expected = "[\n"+ "\t2,\n" + "\t\"olá\",\n" + "\t4" + "\n]"
-        println(resultado.getText())
-        assertEquals(expected, resultado.getText())
+        println(resultado.toString())
+        assertEquals(expected, resultado.toString())
     }
 
     @Test
@@ -188,7 +187,7 @@ class Test {
         val boolean = true
         assertEquals(JsonBoolean(boolean), createJsonElementFromObject(boolean))
         assertEquals(JsonArray(mutableListOf(JsonString(string), JsonString(string))), createJsonElementFromObject(mutableListOf(string, string)))
-        assertEquals(expectedText, createJsonElementFromObject(course).getText())
+        assertEquals(expectedText, createJsonElementFromObject(course).toString())
 
         val map = mutableMapOf("name" to "PA", "credits" to 6)
         val jsonObject = JsonObject(mutableMapOf("name" to JsonString("PA"), "credits" to JsonNumber(6)))
