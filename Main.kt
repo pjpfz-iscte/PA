@@ -1,13 +1,6 @@
 fun main(){
     var app = GetJson(Controller::class)
-    app.start(0)
+    app.start(8080)
 
 }
-
-
-object Data{
-    lateinit var data: JsonObject
-    lateinit var array: JsonArray<*>
-}
-
 

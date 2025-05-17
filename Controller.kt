@@ -7,130 +7,24 @@ annotation class Path
 @Target(AnnotationTarget.VALUE_PARAMETER)
 annotation class Param
 
-class Controller(){
+@Mapping("api")
+class Controller{
 
-    @Mapping("object")
-    fun getObject() : JsonObject{
-        return Data.data
-    }
+    @Mapping("ints")
+    fun demo(): List<Int> = listOf(1, 2, 3)
 
-    @Mapping("filter/object")
-    fun filterObject(
-        @Param key: String? = null, @Param type: String? = null, @Param op: String? = null, @Param value: String? = null
-    ) : JsonObject {
-        val json = Data.data
+    @Mapping("pair")
+    fun obj(): Pair<String, String> = Pair("um", "dois")
 
-        return try {
-            json.filter { k, v ->
-                val matchKey = key == null || k == key
-                val matchType = matchType(v, type)
-                val matchValue = matchValue(v,op,value)
+    @Mapping("path/{pathvar}")
+    fun path(
+        @Path pathvar: String
+    ): String = pathvar + "!"
 
-                matchKey && matchType && matchValue
-            }
-        } catch (e : Exception){
-            error("Error calling the filterObject, problem with the parameters")
-            JsonObject(mutableMapOf())
-        }
-    }
+    @Mapping("args")
+    fun args(
+        @Param n: Int,
+        @Param text: String
+    ): Map<String, String> = mapOf(text to text.repeat(n))
 
-    @Mapping("filter/array")
-    fun filterArray(@Param type: String? = null, @Param op: String? = null, @Param value: String? = null) : JsonArray<JsonElement>{
-        // como ir buscar o array?
-        val jsonArray = Data.array
-        return try{
-            jsonArray.filter { element ->
-                val matchType = matchType(element, type)
-                val matchValue = matchValue(element,op,value)
-
-                matchType && matchValue
-            }
-
-        }catch(e : Exception){
-            error("Error calling the filterArray, problem with the parameters")
-            JsonArray(mutableListOf())
-        }
-
-    }
-
-    @Mapping("map/array")
-    fun mapArray(
-        @Param op: String,
-        @Param value: Int
-    ) : JsonArray<JsonElement>{
-        val jsonArray = Data.array
-        return jsonArray.map { element ->
-            if(element is JsonNumber){
-                mapOperation(element, op, value)
-            }else{
-                element
-            }
-        }
-    }
-
-    @Mapping("validate/object")
-    fun validateObject(): Boolean{
-        val json = Data.data
-
-        return json.isValid()
-    }
-
-    @Mapping("validate/array")
-    fun validateArray(): Boolean{
-        val jsonArray = Data.array
-
-        return jsonArray.isValid()
-    }
-
-    @Mapping("toString")
-    fun toJsonText(): String{
-        return Data.data.getText()
-    }
-
-    private fun matchType(element : JsonElement, type: String?): Boolean{
-        return type == null || element::class.simpleName == type
-    }
-
-    private fun matchValue(element: JsonElement, op:String?, value: String?) : Boolean{
-        return when {
-            value == null -> true
-            element is JsonString && op == "=" -> element.content == value
-            element is JsonNumber && op == ">" -> element.content.toDouble() > value.toDouble()
-            element is JsonNumber && op == ">=" -> element.content.toDouble() >= value.toDouble()
-            element is JsonNumber && op == "<" -> element.content.toDouble() < value.toDouble()
-            element is JsonNumber && op == "<=" -> element.content.toDouble() <= value.toDouble()
-            element is JsonNumber && op == "=" -> element.content.toDouble() == value.toDouble()
-            else -> false
-        }
-    }
-
-    private fun mapOperation(element : JsonNumber, op: String, value: Int) : JsonElement{
-        return when {
-            op == "+" -> {val result = element.content.toDouble() + value.toDouble()
-                if(result % 1.0 == 0.0)
-                    JsonNumber(result.toInt())
-                else
-                    JsonNumber(result)
-            }
-            op == "-" -> {val result = element.content.toDouble() - value.toDouble()
-                if(result % 1.0 == 0.0)
-                    JsonNumber(result.toInt())
-                else
-                    JsonNumber(result)
-            }
-            op == "*" -> {val result = element.content.toDouble() * value.toDouble()
-                if(result % 1.0 == 0.0)
-                    JsonNumber(result.toInt())
-                else
-                    JsonNumber(result)
-            }
-            op == "/" -> {val result = element.content.toDouble() / value.toDouble()
-                if(result % 1.0 == 0.0)
-                    JsonNumber(result.toInt())
-                else
-                    JsonNumber(result)
-            }
-            else -> JsonNull
-        }
-    }
 }

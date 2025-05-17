@@ -1,5 +1,7 @@
 import org.junit.Assert.*
 import org.junit.Test
+import java.net.HttpURLConnection
+import java.net.URL
 
 class Test {
 
@@ -53,11 +55,11 @@ class Test {
     fun testeFilterJsonArray(){
         val json = JsonArray(
             mutableListOf(
-            JsonNumber(1),
-            JsonString("hello"),
-            JsonNumber(4),
-            JsonArray(mutableListOf(JsonNumber(5), JsonNumber(3)))
-        )
+                JsonNumber(1),
+                JsonString("hello"),
+                JsonNumber(4),
+                JsonArray(mutableListOf(JsonNumber(5), JsonNumber(3)))
+            )
         )
 
         val resultado = json.filter { it is JsonNumber }
@@ -87,8 +89,8 @@ class Test {
     fun testeMapJsonArray(){
         val json = JsonArray(
             mutableListOf(JsonNumber(1),
-            JsonString("olá"),
-            JsonNumber(2))
+                JsonString("olá"),
+                JsonNumber(2))
         )
 
         val resultado = json.map { if (it is JsonNumber) JsonNumber(it.content.toInt() * 2)
@@ -194,59 +196,59 @@ class Test {
 
     }
 
+
+
     @Test
-    fun apiTest(){
+    fun intsEndpoint() {
+        val app = start()
+        val body = get("/api/ints")
+        val expected = "[\n"+"\t1,\n" + "\t2,\n" + "\t3\n" + "]"
+        assertEquals(expected, body)
+        stop(app)
+    }
 
-        val obj = JsonObject(
-            mutableMapOf(
-                "name" to JsonString("Alice"),
-                "age" to JsonNumber(30),
-                "age2" to JsonNumber(15),
-                "age3" to JsonNumber(5),
-                "location" to JsonString("aqui"),
-                "codigo-postal" to JsonNull,
-                "outro" to JsonBoolean(true),
-            )
-        )
+    @Test
+    fun pairEndpoint() {
+        val app = start()
+        val body = get("/api/pair")
+        val expected = "{\n" + "\t\"first\":\"um\",\n" + "\t\"second\":\"dois\"\n" + "}"
+        assertEquals(expected, body)
+        stop(app)
+    }
 
-        val array = JsonArray(
-            mutableListOf(
-                JsonNumber(1),
-                JsonString("hello"),
-                JsonNumber(4),
-                JsonNull
-            )
-        )
+    @Test
+    fun pathEndpoint() {
+        val app = start()
+        val body = get("/api/path/xyz")
+        val expected = ""
+        assertEquals(expected, body)
+        stop(app)
+    }
 
+    @Test
+    fun argsEndpoint() {
+        val app = start()
+        val body = get("/api/args?n=2&text=Ha")
+        val expected = "{\n" + "\t\"Ha\":\"HaHa\"\n" + "}"
+        assertEquals(expected, body)
+        stop(app)
+    }
+
+    fun get(route: String): String {
+        val url = URL("http://localhost:8080$route")
+        val conn = url.openConnection() as HttpURLConnection
+        conn.requestMethod = "GET"
+        conn.inputStream.bufferedReader().use { return it.readText() }
+    }
+
+    fun start(): GetJson{
         var app = GetJson(Controller::class)
-        Data.data = obj
-        Data.array = array
-        val cont = Controller()
+        app.start(8080)
+        return app
+    }
 
-        val filteredObject1 = cont.filterObject(key = "name").getText()
-        val filteredObject2 = cont.filterObject(null, type = "JsonNumber", op = ">=", value = "15").getText()
-
-        val expectedFilteredObject1 = "{\n"+ "\t\"name\":\"Alice\""+ "\n}"
-        val expectedFilteredObject2 = "{\n"+ "\t\"age\":30,"+ "\n\t\"age2\":15" + "\n}"
-
-        assertEquals(expectedFilteredObject1, filteredObject1)
-        assertEquals(expectedFilteredObject2, filteredObject2)
-
-        val filteredArray1 = cont.filterArray(type = "JsonNumber").getText()
-        val expectedFilteredArray1 = "[\n"+ "\t1,"+ "\n\t4" +"\n]"
-
-        assertEquals(expectedFilteredArray1, filteredArray1)
-
-        val mappedArray1 = cont.mapArray(op = "*", value = 2).getText()
-        val expectedMappedArray1 = "[\n"+ "\t2,\n" + "\t\"hello\",\n" + "\t8,\n" + "\tnull"+ "\n]"
-
-        assertEquals(expectedMappedArray1, mappedArray1)
-
-        val expectedObject = "{\n"+ "\t\"name\":\"Alice\","+ "\n\t\"age\":30," + "\n\t\"age2\":15,"+
-                "\n\t\"age3\":5," + "\n\t\"location\":\"aqui\","+ "\n\t\"codigo-postal\":null," + "\n\t\"outro\":true" + "\n}"
-
-        assertEquals(expectedObject, obj.getText())
-        assertEquals(expectedObject, cont.toJsonText())
+    fun stop(app: GetJson){
+        app.stop()
     }
 
 
