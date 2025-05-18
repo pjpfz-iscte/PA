@@ -219,7 +219,7 @@ class Test {
     fun pathEndpoint() {
         val app = start()
         val body = get("/api/path/xyz")
-        val expected = ""
+        val expected = "\"xyz!\""
         assertEquals(expected, body)
         stop(app)
     }
