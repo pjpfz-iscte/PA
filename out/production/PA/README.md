@@ -23,6 +23,8 @@ A biblioteca inclui os seguintes componentes principais:
 * `isValid()`: valida a estrutura usando o visitor `JsonValidator`.
 * `createJsonElementFromObject(value: Any?)`: converte objetos Kotlin em `JsonElement`s.
 
+![UML Diagram](JsonElement.png)
+
 ---
 
 ## Exemplo de Utilização
