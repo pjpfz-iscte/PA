@@ -5,7 +5,7 @@ Abaixo, encontra-se uma demonstração de como usar esta biblioteca.
 
 ---
 **Release** : [versão 1.0.0](out/artifacts/json_lib/PA.jar)\
-**Documentação** : [versão 1.0.0](docs/dokka/html/index.html)
+**Documentação** : [versão 1.0.0](https://pjpfz-iscte.github.io/PA/)
 ---
 
 ## Estrutura da Biblioteca
