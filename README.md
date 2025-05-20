@@ -1,8 +1,11 @@
 # Tutorial da Biblioteca JSON em Kotlin
 
-Este tutorial mostra como utilizar uma biblioteca personalizada para gerar e manipular estruturas JSON em Kotlin. A biblioteca é baseada em *sealed classes*, herança, o *Visitor Pattern* e também reflexão. 
+Este tutorial mostra como utilizar uma biblioteca personalizada para gerar e manipular estruturas JSON em Kotlin. A biblioteca é baseada em *sealed classes*, herança, o *Visitor Pattern* e também reflexão. \
 Abaixo, encontra-se uma demonstração de como usar esta biblioteca.
 
+---
+**Release** : [versão 1.0.0](out/artifacts/json_lib/PA.jar)\
+**Documentação** : [versão 1.0.0](docs/dokka/html/index.html)
 ---
 
 ## Estrutura da Biblioteca

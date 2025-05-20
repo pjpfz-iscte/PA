@@ -62,7 +62,6 @@ class Test {
         )
 
         val resultado = json.filter { it is JsonNumber }
-        println(resultado.toString())
         val expected = "[\n"+ "\t1,"+ "\n\t4" +"\n]"
         assertEquals(expected, resultado.toString())
     }
@@ -80,7 +79,6 @@ class Test {
         )
         val resultado = obj.filter { s, jsonElement ->  jsonElement is JsonNumber}
         val expected = "{\n"+ "\t\"age\":30"+ "\n}"
-        println(resultado.toString())
         assertEquals(expected, resultado.toString())
     }
 
@@ -95,14 +93,12 @@ class Test {
         val resultado = json.map { if (it is JsonNumber) JsonNumber(it.content.toInt() * 2)
         else it}
         val expected = "[\n"+ "\t2,\n" + "\t\"olá\",\n" + "\t4" + "\n]"
-        println(resultado.toString())
         assertEquals(expected, resultado.toString())
     }
 
     @Test
     fun testIsValidJsonObject(){
         val jsonObject1 = JsonObject(mutableMapOf("Olá" to JsonString("Mundo")))
-        print(jsonObject1.isValid())
         assertTrue(jsonObject1.isValid())
         val jsonNull = JsonNull
         val jsonObject2 = JsonObject(mutableMapOf("Olá" to JsonString("Mundo"), "jsonArray" to JsonArray<JsonElement>(
