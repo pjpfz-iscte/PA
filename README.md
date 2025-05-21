@@ -6,6 +6,7 @@ Abaixo, encontra-se uma demonstração de como usar esta biblioteca.
 ---
 **Release** : [versão 1.0.0](out/artifacts/json_lib/PA.jar)\
 **Documentação** : [versão 1.0.0](https://pjpfz-iscte.github.io/PA/)
+
 ---
 
 ## Estrutura da Biblioteca
@@ -42,13 +43,13 @@ val jsonNull = JsonNull
 ### Criar um JsonArray
 ```kotlin
 val array = JsonArray(listOf(JsonString("um"), JsonString("dois"), JsonNumber(3)))
-println(array.getText())  // Output formatado como JSON
+println(array)  // Output formatado como JSON
 ```
 
 ### Filtrar elementos de um array
 ```kotlin
 val onlyStrings = array.filter { it is JsonString }
-println(onlyStrings.getText())
+println(onlyStrings)
 ```
 
 ### Mapear elementos de um array
@@ -57,7 +58,7 @@ val uppercased = array.map {
     if (it is JsonString) JsonString(it.content.uppercase())
     else it
 }
-println(uppercased.getText())
+println(uppercased)
 ```
 
 ### Criar um JsonObject
@@ -69,13 +70,13 @@ val obj = JsonObject(
         "ativa" to JsonBoolean(true)
     )
 )
-println(obj.getText())
+println(obj)
 ```
 
 ### Filtrar campos de um objeto
 ```kotlin
 val onlyStrings = obj.filter { _, v -> v is JsonString }
-println(onlyStrings.getText())
+println(onlyStrings)
 ```
 
 ### Validação de JSON
@@ -93,7 +94,7 @@ data class Pessoa(val nome: String, val idade: Int)
 
 val pessoa = Pessoa("Rui", 30)
 val json = createJsonElementFromObject(pessoa)
-println(json.getText())
+println(json)
 ```
 
 Também suporta:
