@@ -107,7 +107,7 @@ class GetJson(
 
         try{
             val result = method.call(*args.toTypedArray())
-            val resultToJsonElement = createJsonElementFromObject(result).getText()
+            val resultToJsonElement = createJsonElementFromObject(result).toString()
             sendResponse(request, 200, resultToJsonElement)
         }catch(e : Exception){
             sendResponse(request, 500, "Server Error: $e")
